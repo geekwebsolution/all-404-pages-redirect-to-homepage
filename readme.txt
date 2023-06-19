@@ -7,7 +7,7 @@ Requires at least: 3.0.1
 Tested up to: 6.2.2
 Stable tag: 1.8
 
-By using this smart plugin,you can fix all 404 errors by redirecting them to the home page or any custom page using the SEO 301 redirection. Improve your SEO in search engines like google, bing, yahoo etc
+By using this smart plugin, you can fix all 404 errors by redirecting them to the home page or any custom page using the SEO 301 redirection. Improve your SEO in search engines like google, bing, yahoo etc
 
 == Description ==
 
