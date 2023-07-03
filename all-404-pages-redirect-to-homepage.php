@@ -10,7 +10,7 @@ Version: 1.8
 
 Author URI: https://geekcodelab.com/
 
-Text Domain : all-error-page-redirect-home
+Text Domain : all-404-pages-redirect-to-homepage
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -30,10 +30,10 @@ add_action('wp', 'redirect_404r');
 add_action( 'admin_enqueue_scripts', 'enqueue_styles_scripts_404r' );
 
 function aeprh_plugin_add_settings_link( $links ) { 
-	$support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __( 'Support' ) . '</a>'; 
+	$support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __( 'Support', 'all-404-pages-redirect-to-homepage' ) . '</a>'; 
 	array_unshift( $links, $support_link );
 
-	$settings_link = '<a href="options-general.php?page=all-404-redirect-option">' . __( 'Settings' ) . '</a>';
+	$settings_link = '<a href="options-general.php?page=all-404-redirect-option">' . __( 'Settings', 'all-404-pages-redirect-to-homepage' ) . '</a>';
 	array_unshift( $links, $settings_link );
 
 	
@@ -105,7 +105,6 @@ function plugin_active_404r(){
 function redirect_404r(){
 
 	if(is_404()) {
-	 	
 
         $redirect_to	= get_redirect_to_404r();
         $status			= get_status_404r();
@@ -162,12 +161,14 @@ function redirect_404r(){
 
 //---------------------------------------------------------------
 
-
-
 function admin_menu_404r() {
-
-	add_options_page('All 404 Redirect to Homepage', 'All 404 Redirect to Homepage', 'manage_options', 'all-404-redirect-option', 'options_menu_404r'  );
-
+	add_options_page(
+		__('All 404 Redirect to Homepage','all-404-pages-redirect-to-homepage'), 
+		__('All 404 Redirect to Homepage','all-404-pages-redirect-to-homepage'), 
+		'manage_options', 
+		'all-404-redirect-option', 
+		'options_menu_404r'  
+	);
 }
 
 //---------------------------------------------------------------//
@@ -176,7 +177,7 @@ function options_menu_404r() {
 	
 	if (!current_user_can('manage_options')){
 
-		wp_die( __('You do not have sufficient permissions to access this page.') );
+		wp_die( __('You do not have sufficient permissions to access this page.','all-404-pages-redirect-to-homepage') );
 	}
 
 	include( plugin_dir_path( __FILE__ ) . 'options.php' );
@@ -184,14 +185,17 @@ function options_menu_404r() {
 
 //---------------------------------------------------------------//
 
+/** Admin Site Add Css And Script Start */
 function enqueue_styles_scripts_404r(){
 
-    if( is_admin() ) {              
-
-        $css= plugins_url() . '/'.  basename(dirname(__FILE__)) . "/style.css";               
+    if( is_admin() ) { 
+        $css= plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/css/style.css";               
 
         wp_enqueue_style( 'main-404-css', $css, '',AEPRH_VERSION);
 
+		$js= plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/js/aeprh-admin-script.js";       
+		wp_enqueue_script( 'wsppcp-custom', $js, array('jquery'), AEPRH_VERSION, true );
     }
 
 }
+/** Admin Site Add Script End */
