@@ -29,6 +29,7 @@ add_action('wp', 'redirect_404r');
 
 add_action( 'admin_enqueue_scripts', 'enqueue_styles_scripts_404r' );
 
+
 function aeprh_plugin_add_settings_link( $links ) { 
 	$support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __( 'Support', 'all-404-pages-redirect-to-homepage' ) . '</a>'; 
 	array_unshift( $links, $support_link );
