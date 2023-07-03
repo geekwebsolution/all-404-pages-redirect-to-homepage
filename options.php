@@ -64,7 +64,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                 <tbody>
 
                                     <tr valign="top">
-                                        <th scope="row"><?php _e( 'Status', 'all-404-pages-redirect-to-homepage' ); ?></th>
+                                        <th scope="row">Status</th>
                                         <td>
 
                                             <select id="satus_404r" name="status">
@@ -75,11 +75,11 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                     </tr>
 
                                     <tr valign="top">
-                                        <th scope="row"><?php _e( 'Redirect all 404 pages to:', 'all-404-pages-redirect-to-homepage' ); ?> </th>
+                                        <th scope="row">Redirect all 404 pages to: </th>
                                         <td>
 
                                             <input type="text" name="redirect_to" id="redirect_to" class="regular-text" value="<?php echo $redirect_to; ?>">
-                                            <p class="description"><?php _e( 'Links that redirect for all 404 pages.', 'all-404-pages-redirect-to-homepage' ); ?></p>
+                                            <p class="description">Links that redirect for all 404 pages.</p>
 
                                         </td>
                                     </tr>
@@ -91,9 +91,10 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                         </form>
                     </div>
                 </section>
-                <?php
+            <?php
             }
-            if ($tab == "aeprh-404-urls") { ?>
+            if ($tab == "aeprh-404-urls") {
+            ?>
                 <section class="aeprh-section">
                     <form method="POST">
                         <div class="aeprh-error-lists">
@@ -104,9 +105,9 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                             <input type="checkbox" name="aeprh-Select-all" value="all" id="aeprh-Select-all" class="aeprh-all-delete">
                                         </th>
                                         <th>#</th>
-                                        <th><?php _e( 'IP Address', 'all-404-pages-redirect-to-homepage' ); ?></th>
-                                        <th><?php _e( 'Date', 'all-404-pages-redirect-to-homepage' ); ?></th>
-                                        <th><?php _e( 'URL', 'all-404-pages-redirect-to-homepage' ); ?></th>
+                                        <th><?php __( 'IP Address', 'all-404-pages-redirect-to-homepage' ); ?></th>
+                                        <th><?php __( 'Date', 'all-404-pages-redirect-to-homepage' ); ?></th>
+                                        <th><?php __( 'URL', 'all-404-pages-redirect-to-homepage' ); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>

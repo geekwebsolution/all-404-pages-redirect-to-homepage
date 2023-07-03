@@ -5,7 +5,7 @@ Tags: 404 error, redirection in WordPress, homepage, 404 link, redirect, soft 40
 Requires PHP: 5.2.4
 Requires at least: 3.0.1
 Tested up to: 6.2.2
-Stable tag: 1.8
+Stable tag: 1.9
 
 By using this smart plugin,  you can fix all 404 errors by redirecting them to the home page or any custom page using the SEO 301 redirection. Improve your SEO in search engines like google, bing, yahoo etc
 
@@ -67,3 +67,6 @@ After activating the plugin, go to <strong>Setting > All 404 Redirect to Homepag
 
 = 1.8 =
  Tested up to wp version 6.2.2
+
+ = 1.9 =
+ Added Bulk Delete feature for the listing of 404 logs 
