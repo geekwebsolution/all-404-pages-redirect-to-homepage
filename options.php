@@ -50,7 +50,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
 
             <div class="aeprh-tabbing-box">
                 <ul class="aeprh-tab-list">
-                    <li><a href="?page=all-404-redirect-option" class="nav-tab <?php if ($tab === null) : ?>nav-tab-active<?php endif; ?>"><?php _e('General Option', 'all-404-pages-redirect-to-homepage'); ?></a></li>
+                    <li><a href="?page=all-404-redirect-option" class="nav-tab <?php if ($tab === null) : ?>nav-tab-active<?php endif; ?>"><?php _e('General option', 'all-404-pages-redirect-to-homepage'); ?></a></li>
                     <li><a href="?page=all-404-redirect-option&tab=aeprh-404-urls" class="nav-tab <?php if ($tab === 'aeprh-404-urls') : ?>nav-tab-active<?php endif; ?>"><?php _e('404 Logs', 'all-404-pages-redirect-to-homepage'); ?></a></li>
                 </ul>
             </div>
