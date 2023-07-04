@@ -13,6 +13,9 @@
     border-left-color: red! important;
 }
 
+table.wp-list-table .aeprh-single-delete {
+    margin-left: 8px;
+}
 .aeprh-section {
     display: inline-block;
     width: 100%;
@@ -51,11 +54,45 @@
     width: 99%;
 }
 
+.wp-list-table td.aeprh-not-data {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+}
+
 .aeprh-page-numbers {
     display: block;
     margin-top: 20px;
 }
 
+.aeprh-error-lists .aeprh-action {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+.aeprh-action .aeprh-pagination-sec {
+    display: flex;
+    align-items: center;
+}
+
+.aeprh-action .aeprh-pagination-sec .pagination-links {
+    margin-left: 20px;
+}
+.aeprh-action ul.aeprh-page-numbers {
+    margin: 0;
+}
+
+.aeprh-pagination-sec 
+.aeprh-page-limit-sec 
+select.aeprh-page-limit {
+    height: 38px;
+    padding-left: 16px;
+    border-radius: 8px;
+    color: #2c3338;
+    border-color: #8c8f94;
+    box-shadow: none;
+    line-height: 2;
+}
 .aeprh-page-numbers li a,
 .page-numbers.current {
     width: 40px;
