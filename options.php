@@ -68,8 +68,8 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                         <td>
 
                                             <select id="satus_404r" name="status">
-                                                <option value="1" <?php if ($status == 1) { echo "selected"; } ?>>Enabled </option>
-                                                <option value="0" <?php if ($status == 0) { echo "selected"; } ?>>Disabled </option>
+                                                <option value="1" <?php if ($status == 1) { _e("selected","all-404-pages-redirect-to-homepage"); } ?>><?php _e("Enabled","all-404-pages-redirect-to-homepage"); ?> </option>
+                                                <option value="0" <?php if ($status == 0) { _e("selected","all-404-pages-redirect-to-homepage"); } ?>><?php _e("Disabled","all-404-pages-redirect-to-homepage"); ?> </option>
                                             </select>
                                         </td>
                                     </tr>
@@ -78,7 +78,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                         <th scope="row"><?php _e( 'Redirect all 404 pages to:', 'all-404-pages-redirect-to-homepage' ); ?> </th>
                                         <td>
 
-                                            <input type="text" name="redirect_to" id="redirect_to" class="regular-text" value="<?php echo $redirect_to; ?>">
+                                            <input type="text" name="redirect_to" id="redirect_to" class="regular-text" value="<?php esc_attr_e($redirect_to,"all-404-pages-redirect-to-homepage"); ?>">
                                             <p class="description"><?php _e( 'Links that redirect for all 404 pages.', 'all-404-pages-redirect-to-homepage' ); ?></p>
 
                                         </td>
@@ -86,8 +86,8 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
 
                                 </tbody>
                             </table>
-                            <input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $nonce = wp_create_nonce('r404option_nounce'); ?>" />
-                            <input class="button-primary aeprh-submit" type="submit" value="Update" name="Save_Options">
+                            <input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php esc_attr_e($nonce = wp_create_nonce('r404option_nounce')); ?>" />
+                            <input class="button-primary aeprh-submit" type="submit" value="<?php _e( 'Update', 'all-404-pages-redirect-to-homepage' ); ?>" name="Save_Options">
                         </form>
                     </div>
                 </section>
@@ -134,20 +134,20 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                             ?>
                                             <tr>
                                                 <td>
-                                                    <input type="checkbox" name="list[]" value="<?php echo $row->id; ?>" class="aeprh-single-delete">
+                                                    <input type="checkbox" name="list[]" value="<?php esc_attr_e($row->id,"all-404-pages-redirect-to-homepage"); ?>" class="aeprh-single-delete">
                                                 </td>
-                                                <td class="manage-column ss-list-width"><?php echo $i; ?></td>
-                                                <td class="manage-column ss-list-width"><?php echo $row->ip_address; ?></td>
-                                                <td class="manage-column ss-list-width"><?php echo $row->time; ?></td>
+                                                <td class="manage-column ss-list-width"><?php esc_attr_e($i,"all-404-pages-redirect-to-homepage"); ?></td>
+                                                <td class="manage-column ss-list-width"><?php esc_attr_e($row->ip_address,"all-404-pages-redirect-to-homepage"); ?></td>
+                                                <td class="manage-column ss-list-width"><?php esc_attr_e($row->time,"all-404-pages-redirect-to-homepage"); ?></td>
                                                 <td class="manage-column ss-list-width">
-                                                    <a href="<?php echo $row->url; ?>" target="_blank"><?php echo $row->url; ?></a>
+                                                    <a href="<?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?>" target="_blank"><?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?></a>
                                                 </td>
                                             </tr>
                                             <?php
                                             $i++;
                                         }
                                     } else {
-                                        echo "<tr><td colspan='5'  class='aeprh-not-data'>No records found</td></tr>";
+                                        _e("<tr><td colspan='5'  class='aeprh-not-data'>No records found</td></tr>");
                                     }
                                     ?>
                                 </tbody>

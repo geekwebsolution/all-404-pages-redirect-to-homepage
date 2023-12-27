@@ -109,10 +109,8 @@ function redirect_404r(){
         $redirect_to	= get_redirect_to_404r();
         $status			= get_status_404r();
 	    $link			= current_link_404r();
-
 	    if($link == $redirect_to){
-
-	        echo "<b>All 404 Redirect to Homepage</b> has detected that the target URL is invalid, this will cause an infinite loop redirection, please go to the plugin settings and correct the traget link! ";
+			_e("<b>All 404 Redirect to Homepage</b> has detected that the target URL is invalid, this will cause an infinite loop redirection, please go to the plugin settings and correct the traget link! ","all-404-pages-redirect-to-homepage");
 	        exit(); 
 	    }
 
