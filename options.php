@@ -184,7 +184,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                                 $optionURL = $baseURL . $value . '&pagenum=1';
                                                 
                                                 // Output the <option> element with the appropriate value, label, and selected attribute
-                                                echo "<option value=\"$optionURL\" $selected>$label</option>";
+                                                _e("<option value=\"$optionURL\" $selected>$label</option>","all-404-pages-redirect-to-homepage");
                                             }
                                             ?>
                                         </select>
@@ -203,7 +203,8 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                 
                                         ) );
                                         if ( $page_links ) {
-                                            echo sprintf( '<ul class="aeprh-page-numbers"><li>%s</li></ul>', join( '</li><li>', $page_links ) );
+                                            $aeprh_paginate = sprintf( '<ul class="aeprh-page-numbers"><li>%s</li></ul>', join( '</li><li>', $page_links ) );
+                                            _e($aeprh_paginate,"all-404-pages-redirect-to-homepage");
                                         } ?>
                                     </div>
                                 </div>
