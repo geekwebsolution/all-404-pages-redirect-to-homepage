@@ -1,20 +1,20 @@
 <?php
 if (isset($_POST['Save_Options'])) {
-    $status = sanitize_text_field($_POST['status']);
-    $redirect_to = sanitize_text_field($_POST['redirect_to']);
+    $aeprh_status = sanitize_text_field($_POST['status']);
+    $aeprh_redirect_to = sanitize_text_field($_POST['redirect_to']);
     $nonce = $_POST['_wpnonce'];
     if (wp_verify_nonce($nonce, 'r404option_nounce')) {
-        update_option('status_404r', $status);
-        update_option('redirect_to_404r', $redirect_to);
+        update_option('status_404r', $aeprh_status);
+        update_option('redirect_to_404r', $aeprh_redirect_to);
         success_option_msg_404r('Settings Saved!');
     } else {
         failure_option_msg_404r('Unable to save data!');
     }
 }
 
-$status = get_status_404r();
+$aeprh_status = aeprh_get_status_404r();
 
-$redirect_to = get_redirect_to_404r();
+$aeprh_redirect_to = aeprh_get_redirect_to_404r();
 
 $default_tab = null;
 $tab = "";
@@ -22,11 +22,20 @@ $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : $default_tab;
 
 if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delete') {
     global $wpdb; // Access the global WordPress database object
-    $table_name = $wpdb->prefix . "aeprh_links_lists"; // Table name in the WordPress database
+    $aeprh_table_name = $wpdb->prefix . "aeprh_links_lists"; // Table name in the WordPress database
 
     if (isset($_POST['list']) && is_array($_POST['list']) && !empty($_POST['list'])) {
+        // $rows_ids = implode(',', array_map('absint', $_POST['list'])); // Sanitize and convert the selected IDs to integers
+        // $result = $wpdb->query($wpdb->prepare("DELETE FROM $aeprh_table_name WHERE ID IN ($rows_ids)")); // Use prepared statements to prevent SQL injection
+
         $rows_ids = implode(',', array_map('absint', $_POST['list'])); // Sanitize and convert the selected IDs to integers
-        $result = $wpdb->query($wpdb->prepare("DELETE FROM $table_name WHERE ID IN ($rows_ids)")); // Use prepared statements to prevent SQL injection
+        $placeholders = array_fill(0, count($_POST['list']), '%d');
+        $placeholders_str = implode(', ', $placeholders);
+
+        // Build the query with placeholders
+        $query = $wpdb->prepare("DELETE FROM $aeprh_table_name WHERE ID IN ($placeholders_str)", $_POST['list']);
+
+        $result = $wpdb->query($query); // Use prepared statements to prevent SQL injection
 
         if ($result !== false) {
             success_option_msg_404r('Data Deleted Successfully!'); // Display a success message
@@ -68,8 +77,8 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                         <td>
 
                                             <select id="satus_404r" name="status">
-                                                <option value="1" <?php if ($status == 1) { _e("selected","all-404-pages-redirect-to-homepage"); } ?>><?php _e("Enabled","all-404-pages-redirect-to-homepage"); ?> </option>
-                                                <option value="0" <?php if ($status == 0) { _e("selected","all-404-pages-redirect-to-homepage"); } ?>><?php _e("Disabled","all-404-pages-redirect-to-homepage"); ?> </option>
+                                                <option value="1" <?php if ($aeprh_status == 1) { _e("selected","all-404-pages-redirect-to-homepage"); } ?>><?php _e("Enabled","all-404-pages-redirect-to-homepage"); ?> </option>
+                                                <option value="0" <?php if ($aeprh_status == 0) { _e("selected","all-404-pages-redirect-to-homepage"); } ?>><?php _e("Disabled","all-404-pages-redirect-to-homepage"); ?> </option>
                                             </select>
                                         </td>
                                     </tr>
@@ -78,7 +87,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                         <th scope="row"><?php _e( 'Redirect all 404 pages to:', 'all-404-pages-redirect-to-homepage' ); ?> </th>
                                         <td>
 
-                                            <input type="text" name="redirect_to" id="redirect_to" class="regular-text" value="<?php esc_attr_e($redirect_to,"all-404-pages-redirect-to-homepage"); ?>">
+                                            <input type="text" name="redirect_to" id="redirect_to" class="regular-text" value="<?php esc_attr_e($aeprh_redirect_to,"all-404-pages-redirect-to-homepage"); ?>">
                                             <p class="description"><?php _e( 'Links that redirect for all 404 pages.', 'all-404-pages-redirect-to-homepage' ); ?></p>
 
                                         </td>
@@ -91,10 +100,9 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                         </form>
                     </div>
                 </section>
-            <?php
+                <?php
             }
-            if ($tab == "aeprh-404-urls") {
-            ?>
+            if ($tab == "aeprh-404-urls") { ?>
                 <section class="aeprh-section">
                     <form method="POST">
                         <div class="aeprh-error-lists">
@@ -104,7 +112,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                         <th>
                                             <input type="checkbox" name="aeprh-Select-all" value="all" id="aeprh-Select-all" class="aeprh-all-delete">
                                         </th>
-                                        <th>#</th>
+                                        <th><?php _e( '#', 'all-404-pages-redirect-to-homepage' ); ?></th>
                                         <th><?php _e( 'IP Address', 'all-404-pages-redirect-to-homepage' ); ?></th>
                                         <th><?php _e( 'Date', 'all-404-pages-redirect-to-homepage' ); ?></th>
                                         <th><?php _e( 'URL', 'all-404-pages-redirect-to-homepage' ); ?></th>
@@ -113,18 +121,19 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                 <tbody>
                                     <?php
                                     global $wpdb; // Access the global WordPress database object
-                                    $table_name = $wpdb->prefix . "aeprh_links_lists"; // Table name in the WordPress database
+                                    $aeprh_table_name = $wpdb->prefix . "aeprh_links_lists"; // Table name in the WordPress database
 
                                     $pagenum = isset($_GET['pagenum']) ? absint($_GET['pagenum']) : 1; // Get the current page number
 
                                     $limit = isset($_GET['limit']) ? absint($_GET['limit']) : 25; // Get the limit value for number of records per page
 
-                                    $total = $wpdb->get_var("SELECT COUNT(*) as total FROM $table_name ORDER BY `time` DESC"); // Get the total number of records in the table
+                                    $total = $wpdb->get_var("SELECT COUNT(*) as total FROM $aeprh_table_name ORDER BY `time` DESC"); // Get the total number of records in the table
+
                                     $num_of_pages = ceil($total / $limit); // Calculate the total number of pages based on the limit
                                     if ($pagenum > $num_of_pages) $pagenum = 1; // Set the current page number to 1 if it exceeds the total number of pages
                                     $offset = ($pagenum - 1) * $limit; // Calculate the offset for pagination
 
-                                    $rows = $wpdb->get_results("SELECT * FROM $table_name ORDER BY `time` DESC LIMIT $offset, $limit"); // Fetch the records for the current page
+                                    $rows = $wpdb->get_results("SELECT * FROM $aeprh_table_name ORDER BY `time` DESC LIMIT $offset, $limit"); // Fetch the records for the current page
                                     $rowcount = count($rows); // Get the number of fetched records
 
                                     if ($rowcount > 0) {
@@ -140,7 +149,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                                 <td class="manage-column ss-list-width"><?php esc_attr_e($row->ip_address,"all-404-pages-redirect-to-homepage"); ?></td>
                                                 <td class="manage-column ss-list-width"><?php esc_attr_e($row->time,"all-404-pages-redirect-to-homepage"); ?></td>
                                                 <td class="manage-column ss-list-width">
-                                                    <a href="<?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?>" target="_blank"><?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?></a>
+                                                    <a href="<?php esc_url($row->url,"all-404-pages-redirect-to-homepage"); ?>" target="_blank"><?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?></a>
                                                 </td>
                                             </tr>
                                             <?php
@@ -213,8 +222,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                     </form>
                 </section>
                 <?php
-            }
-            ?>
+            } ?>
         </div>
     </div>
 </div>
