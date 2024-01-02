@@ -73,4 +73,4 @@ After activating the plugin, go to <strong>Setting > All 404 Redirect to Homepag
 
 = 2.0 =
  Fix Bug
- Tested up to wp version 6.4.2
+ Tested up to wp version 6.4.2 test
