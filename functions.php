@@ -29,12 +29,12 @@ function aeprh_get_redirect_to_404r() {
 }
 
 // Error message
-function failure_option_msg_404r($msg){	
+function aeprh_failure_option_msg_404r($msg){	
 	_e('<div class="notice notice-error aeprh-error-msg is-dismissible"><p>' . $msg . '</p></div>','all-404-pages-redirect-to-homepage');	
 }
 
 // Success message
-function  success_option_msg_404r($msg){
+function  aeprh_success_option_msg_404r($msg){
 	_e('<div class="notice notice-success aeprh-success-msg is-dismissible"><p>'. $msg . '</p></div>','all-404-pages-redirect-to-homepage');	
 }
 

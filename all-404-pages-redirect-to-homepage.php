@@ -6,7 +6,7 @@ Description: a plugin to redirect all 404 pages to home page or any custom page
 
 Author: Geek Code Lab
 
-Version: 1.9
+Version: 2.0
 
 Author URI: https://geekcodelab.com/
 
@@ -21,7 +21,7 @@ if (!defined("AEPRH_PLUGIN_DIR_PATH"))
 
 require_once( plugin_dir_path( __FILE__ ) . 'functions.php' );
 
-define( 'AEPRH_VERSION', '1.9' );
+define( 'AEPRH_VERSION', '2.0' );
 
 add_action('admin_menu', 'aeprh_admin_menu_404r');
 
@@ -90,19 +90,19 @@ function aeprh_redirect_404r(){
 
 			
 			$aeprh_link_date 	= date("Y-m-d H:i:s");
-			$ip_address	= $_SERVER['REMOTE_ADDR'];
-			$curr_url = home_url( $wp->request );
+			$aeprh_ip_address	= $_SERVER['REMOTE_ADDR'];
+			$aeprh_curr_url = home_url( $wp->request );
 			
 			
-			$rowcount = $wpdb->get_var("SELECT COUNT(*) FROM $aeprh_table_name WHERE url = '$curr_url' and ip_address = '$ip_address' ");
+			$rowcount = $wpdb->get_var("SELECT COUNT(*) FROM $aeprh_table_name WHERE url = '$aeprh_curr_url' and ip_address = '$aeprh_ip_address' ");
 			
 			if($rowcount == 0){
 				
 				aeprh_create_table();
 				
-				$res = $wpdb->insert($aeprh_table_name, array('url' => $curr_url, 'time' => $aeprh_link_date, 'ip_address' => $ip_address) );				
+				$res = $wpdb->insert($aeprh_table_name, array('url' => $aeprh_curr_url, 'time' => $aeprh_link_date, 'ip_address' => $aeprh_ip_address) );				
 			}else{
-				$res =	$wpdb->update($aeprh_table_name, array('time'=>$aeprh_link_date), array('url'=>$curr_url));
+				$res =	$wpdb->update($aeprh_table_name, array('time'=>$aeprh_link_date), array('url'=>$aeprh_curr_url));
 			}
 
 		 	header ('HTTP/1.1 301 Moved Permanently');
@@ -143,11 +143,11 @@ function aeprh_options_menu_404r() {
 function aeprh_enqueue_styles_scripts_404r(){
 
     if( is_admin() ) { 
-        $css = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/css/style.css";               
-        wp_enqueue_style( 'main-404-css', $css, '',AEPRH_VERSION);
+        $aeprh_css = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/css/style.css";               
+        wp_enqueue_style( 'main-404-css', $aeprh_css, '',AEPRH_VERSION);
 
-		$js = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/js/aeprh-admin-script.js";       
-		wp_enqueue_script( 'wsppcp-custom', $js, array('jquery'), AEPRH_VERSION, true );
+		$aeprh_js = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/js/aeprh-admin-script.js";       
+		wp_enqueue_script( 'wsppcp-custom', $aeprh_js, array('jquery'), AEPRH_VERSION, true );
     }
 
 }

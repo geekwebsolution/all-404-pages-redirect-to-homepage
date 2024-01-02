@@ -6,9 +6,9 @@ if (isset($_POST['Save_Options'])) {
     if (wp_verify_nonce($nonce, 'r404option_nounce')) {
         update_option('status_404r', $aeprh_status);
         update_option('redirect_to_404r', $aeprh_redirect_to);
-        success_option_msg_404r('Settings Saved!');
+        aeprh_success_option_msg_404r('Settings Saved!');
     } else {
-        failure_option_msg_404r('Unable to save data!');
+        aeprh_failure_option_msg_404r('Unable to save data!');
     }
 }
 
@@ -29,21 +29,21 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
         // $result = $wpdb->query($wpdb->prepare("DELETE FROM $aeprh_table_name WHERE ID IN ($rows_ids)")); // Use prepared statements to prevent SQL injection
 
         $rows_ids = implode(',', array_map('absint', $_POST['list'])); // Sanitize and convert the selected IDs to integers
-        $placeholders = array_fill(0, count($_POST['list']), '%d');
-        $placeholders_str = implode(', ', $placeholders);
+        $aeprh_placeholders = array_fill(0, count($_POST['list']), '%d');
+        $aeprh_placeholders_str = implode(', ', $aeprh_placeholders);
 
         // Build the query with placeholders
-        $query = $wpdb->prepare("DELETE FROM $aeprh_table_name WHERE ID IN ($placeholders_str)", $_POST['list']);
+        $aeprh_query = $wpdb->prepare("DELETE FROM $aeprh_table_name WHERE ID IN ($aeprh_placeholders_str)", $_POST['list']);
 
-        $result = $wpdb->query($query); // Use prepared statements to prevent SQL injection
+        $aeprh_result = $wpdb->query($aeprh_query); // Use prepared statements to prevent SQL injection
 
-        if ($result !== false) {
-            success_option_msg_404r('Data Deleted Successfully!'); // Display a success message
+        if ($aeprh_result !== false) {
+            aeprh_success_option_msg_404r('Data Deleted Successfully!'); // Display a success message
         } else {
-            failure_option_msg_404r('Unable to Delete Data!'); // Display a failure message
+            aeprh_failure_option_msg_404r('Unable to Delete Data!'); // Display a failure message
         }
     } else {
-        failure_option_msg_404r('Please Select Data to Delete!'); // Display a failure message if no data was selected
+        aeprh_failure_option_msg_404r('Please Select Data to Delete!'); // Display a failure message if no data was selected
     }
 }
 
@@ -123,21 +123,21 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                     global $wpdb; // Access the global WordPress database object
                                     $aeprh_table_name = $wpdb->prefix . "aeprh_links_lists"; // Table name in the WordPress database
 
-                                    $pagenum = isset($_GET['pagenum']) ? absint($_GET['pagenum']) : 1; // Get the current page number
+                                    $aeprh_pagenum = isset($_GET['pagenum']) ? absint($_GET['pagenum']) : 1; // Get the current page number
 
                                     $limit = isset($_GET['limit']) ? absint($_GET['limit']) : 25; // Get the limit value for number of records per page
 
                                     $total = $wpdb->get_var("SELECT COUNT(*) as total FROM $aeprh_table_name ORDER BY `time` DESC"); // Get the total number of records in the table
 
                                     $num_of_pages = ceil($total / $limit); // Calculate the total number of pages based on the limit
-                                    if ($pagenum > $num_of_pages) $pagenum = 1; // Set the current page number to 1 if it exceeds the total number of pages
-                                    $offset = ($pagenum - 1) * $limit; // Calculate the offset for pagination
+                                    if ($aeprh_pagenum > $num_of_pages) $aeprh_pagenum = 1; // Set the current page number to 1 if it exceeds the total number of pages
+                                    $offset = ($aeprh_pagenum - 1) * $limit; // Calculate the offset for pagination
 
                                     $rows = $wpdb->get_results("SELECT * FROM $aeprh_table_name ORDER BY `time` DESC LIMIT $offset, $limit"); // Fetch the records for the current page
                                     $rowcount = count($rows); // Get the number of fetched records
 
                                     if ($rowcount > 0) {
-                                        $i = ($limit * ($pagenum - 1)) + 1; // Initialize the counter for the displayed row number
+                                        $i = ($limit * ($aeprh_pagenum - 1)) + 1; // Initialize the counter for the displayed row number
 
                                         foreach ($rows as $row) {
                                             ?>
@@ -149,7 +149,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                                 <td class="manage-column ss-list-width"><?php esc_attr_e($row->ip_address,"all-404-pages-redirect-to-homepage"); ?></td>
                                                 <td class="manage-column ss-list-width"><?php esc_attr_e($row->time,"all-404-pages-redirect-to-homepage"); ?></td>
                                                 <td class="manage-column ss-list-width">
-                                                    <a href="<?php esc_url($row->url,"all-404-pages-redirect-to-homepage"); ?>" target="_blank"><?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?></a>
+                                                    <a href="<?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?>" target="_blank"><?php esc_attr_e($row->url,"all-404-pages-redirect-to-homepage"); ?></a>
                                                 </td>
                                             </tr>
                                             <?php
@@ -205,7 +205,7 @@ if (isset($_POST['aeprh-delete-list']) && $_POST['aeprh-delete-list'] === 'Delet
                                             'current'   => max( 1, get_query_var('paged') ),
                                             'prev_next' => true,
                                             'total'     => $num_of_pages,
-                                            'current'   => $pagenum,
+                                            'current'   => $aeprh_pagenum,
                                             'type'      => 'array',
                                             'prev_text' => '&laquo;',
                                             'next_text' => '&raquo;',
