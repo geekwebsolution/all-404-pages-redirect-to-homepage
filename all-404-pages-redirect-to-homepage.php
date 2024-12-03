@@ -6,7 +6,7 @@ Description: a plugin to redirect all 404 pages to home page or any custom page
 
 Author: Geek Code Lab
 
-Version: 1.9
+Version: 2.0
 
 Author URI: https://geekcodelab.com/
 
@@ -14,165 +14,135 @@ Text Domain : all-404-pages-redirect-to-homepage
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined("AEPRH_PLUGIN_DIR_PATH"))
+
+	define("AEPRH_PLUGIN_DIR_PATH", plugin_dir_path(__FILE__));
 
 if (!defined("AEPRH_PLUGIN_DIR_PATH"))
 
 	define("AEPRH_PLUGIN_DIR_PATH", plugin_dir_path(__FILE__));
 
+if (!defined("AEPRH_PLUGIN_DIR"))
+	define("AEPRH_PLUGIN_DIR", plugin_basename(__DIR__));
+
+if (!defined("AEPRH_PLUGIN_BASENAME"))
+	define("AEPRH_PLUGIN_BASENAME", plugin_basename(__FILE__));
+
+
 require_once( plugin_dir_path( __FILE__ ) . 'functions.php' );
 
-define( 'AEPRH_VERSION', '1.9' );
+define( 'AEPRH_VERSION', '2.0' );
+require(AEPRH_PLUGIN_DIR_PATH . 'updater/updater.php');
 
-add_action('admin_menu', 'admin_menu_404r');
 
-add_action('wp', 'redirect_404r');
+add_action('admin_menu', 'aeprh_admin_menu_404r');
 
-add_action( 'admin_enqueue_scripts', 'enqueue_styles_scripts_404r' );
+add_action('wp', 'aeprh_redirect_404r');
 
-function aeprh_plugin_add_settings_link( $links ) { 
-	$support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __( 'Support', 'all-404-pages-redirect-to-homepage' ) . '</a>'; 
-	array_unshift( $links, $support_link );
+add_action( 'admin_enqueue_scripts', 'aeprh_enqueue_styles_scripts_404r' );
 
-	$settings_link = '<a href="options-general.php?page=all-404-redirect-option">' . __( 'Settings', 'all-404-pages-redirect-to-homepage' ) . '</a>';
-	array_unshift( $links, $settings_link );
+function aeprh_plugin_add_settings_link( $aeprh_links ) {
 
-	
-	global $wpdb;
-	$table_name = $wpdb->prefix . 'aeprh_links_lists';
+	$aeprh_support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __( 'Support', 'all-404-pages-redirect-to-homepage' ) . '</a>';
+	array_unshift( $aeprh_links, $aeprh_support_link );
 
-	
-	
-	if($wpdb->get_var( "show tables like '$table_name'" ) != $table_name) {
+	$aeprh_settings_link = '<a href="options-general.php?page=all-404-redirect-option">' . __( 'Settings', 'all-404-pages-redirect-to-homepage' ) . '</a>';
+	array_unshift( $aeprh_links, $aeprh_settings_link );
 
-		$charset_collate = $wpdb->get_charset_collate();
-		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
-			id mediumint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			ip_address varchar(90) DEFAULT '' NOT NULL,
-			time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
-			url varchar(300) DEFAULT '' NOT NULL
-			) $charset_collate;";
-		
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		dbDelta( $sql );
-	}
+	aeprh_create_table();
 
-	return $links;
+	return $aeprh_links;
 }
-$plugin = plugin_basename( __FILE__ );
-add_filter( "plugin_action_links_$plugin", 'aeprh_plugin_add_settings_link');
+
+
+$aeprh_plugin = plugin_basename( __FILE__ );
+add_filter( "plugin_action_links_$aeprh_plugin", 'aeprh_plugin_add_settings_link');
 
 add_action( 'upgrader_process_complete', 'aeprh_upgrade_function',10, 2);
- 
+
 function aeprh_upgrade_function( $upgrader_object, $options ) {
-	global $wpdb;
-	$table_name = $wpdb->prefix . 'aeprh_links_lists';
-
-	
-	
-	if($wpdb->get_var( "show tables like '$table_name'" ) != $table_name) {
-
-		$charset_collate = $wpdb->get_charset_collate();
-		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
-			id mediumint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			ip_address varchar(90) DEFAULT '' NOT NULL,
-			time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
-			url varchar(300) DEFAULT '' NOT NULL
-			) $charset_collate;";
-		
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		dbDelta( $sql );
-	}
+	aeprh_create_table();
 }
 
-register_activation_hook( __FILE__ , 'plugin_active_404r' );
+register_activation_hook( __FILE__ , 'aeprh_plugin_active_404r' );
 
-function plugin_active_404r(){
+function aeprh_plugin_active_404r(){
+	aeprh_updater_activate();
+	$aeprh_redirect_to	= aeprh_get_redirect_to_404r();
+	$aeprh_status		= aeprh_get_status_404r();
 
-	$redirect_to	= get_redirect_to_404r();
-	$status			= get_status_404r();
-
-	if(empty($redirect_to)){
+	if(empty($aeprh_redirect_to)){
 		update_option('redirect_to_404r',home_url());
 	}
 
-	if(empty($status)){ 
+	if(empty($aeprh_status)){
 		update_option('status_404r',0);
 	}
 
 }
 
+add_action('upgrader_process_complete', 'aeprh_updater_activate'); // remove  transient  on plugin  update
 
-function redirect_404r(){
+
+function aeprh_redirect_404r(){
 
 	if(is_404()) {
 
-        $redirect_to	= get_redirect_to_404r();
-        $status			= get_status_404r();
-	    $link			= current_link_404r();
-	    if($link == $redirect_to){
+        $aeprh_redirect_to	= aeprh_get_redirect_to_404r();
+        $aeprh_status		= aeprh_get_status_404r();
+	    $aeprh_link			= aeprh_current_link_404r();
+	    if($aeprh_link == $aeprh_redirect_to){
 			_e("<b>All 404 Redirect to Homepage</b> has detected that the target URL is invalid, this will cause an infinite loop redirection, please go to the plugin settings and correct the traget link! ","all-404-pages-redirect-to-homepage");
-	        exit(); 
+	        exit();
 	    }
 
-	 	if($status=='1' & $redirect_to!=''){
+	 	if($aeprh_status=='1' & $aeprh_redirect_to!=''){
 
 			global $wpdb;
 			global $wp;
-			$table_name = $wpdb->prefix."aeprh_links_lists";
+			$aeprh_table_name = $wpdb->prefix."aeprh_links_lists";
 
-			
-			$link_date 	= date("Y-m-d H:i:s");
-			$ip_address	= $_SERVER['REMOTE_ADDR'];
-			$curr_url = home_url( $wp->request );
-			
-			
-			$rowcount = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE url = '$curr_url' and ip_address = '$ip_address' ");
-			
+
+			$aeprh_link_date 	= date("Y-m-d H:i:s");
+			$aeprh_ip_address	= $_SERVER['REMOTE_ADDR'];
+			$aeprh_curr_url = home_url( $wp->request );
+
+
+			$rowcount = $wpdb->get_var("SELECT COUNT(*) FROM $aeprh_table_name WHERE url = '$aeprh_curr_url' and ip_address = '$aeprh_ip_address' ");
+
 			if($rowcount == 0){
-				if($wpdb->get_var( "show tables like '$table_name'" ) != $table_name) {
-	
-					$charset_collate = $wpdb->get_charset_collate();
-					$sql = "CREATE TABLE IF NOT EXISTS $table_name (
-						id mediumint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-						ip_address varchar(90) DEFAULT '' NOT NULL,
-						time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
-						url varchar(300) DEFAULT '' NOT NULL
-						) $charset_collate;";
-					
-					require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-					dbDelta( $sql );
-				}
-				$res = $wpdb->insert($table_name, array('url' => $curr_url, 'time' => $link_date, 'ip_address' => $ip_address) );				
+
+				aeprh_create_table();
+
+				$res = $wpdb->insert($aeprh_table_name, array('url' => $aeprh_curr_url, 'time' => $aeprh_link_date, 'ip_address' => $aeprh_ip_address) );
 			}else{
-				$res =	$wpdb->update($table_name, array('time'=>$link_date), array('url'=>$curr_url));
+				$res =	$wpdb->update($aeprh_table_name, array('time'=>$aeprh_link_date), array('url'=>$aeprh_curr_url));
 			}
 
 		 	header ('HTTP/1.1 301 Moved Permanently');
-			header ("Location: " . $redirect_to);
-			exit(); 
+			header ("Location: " . $aeprh_redirect_to);
+			exit();
 
 		}
 	}
 }
 
-
-
 //---------------------------------------------------------------
 
-function admin_menu_404r() {
+function aeprh_admin_menu_404r() {
 	add_options_page(
-		__('All 404 Redirect to Homepage','all-404-pages-redirect-to-homepage'), 
-		__('All 404 Redirect to Homepage','all-404-pages-redirect-to-homepage'), 
-		'manage_options', 
-		'all-404-redirect-option', 
-		'options_menu_404r'  
+		__('All 404 Redirect to Homepage','all-404-pages-redirect-to-homepage'),
+		__('All 404 Redirect to Homepage','all-404-pages-redirect-to-homepage'),
+		'manage_options',
+		'all-404-redirect-option',
+		'aeprh_options_menu_404r'
 	);
 }
 
 //---------------------------------------------------------------//
 
-function options_menu_404r() {
-	
+function aeprh_options_menu_404r() {
+
 	if (!current_user_can('manage_options')){
 
 		wp_die( __('You do not have sufficient permissions to access this page.','all-404-pages-redirect-to-homepage') );
@@ -184,15 +154,14 @@ function options_menu_404r() {
 //---------------------------------------------------------------//
 
 /** Admin Site Add Css And Script Start */
-function enqueue_styles_scripts_404r(){
+function aeprh_enqueue_styles_scripts_404r(){
 
-    if( is_admin() ) { 
-        $css= plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/css/style.css";               
+    if( is_admin() ) {
+        $aeprh_css = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/css/style.css";
+        wp_enqueue_style( 'main-404-css', $aeprh_css, '',AEPRH_VERSION);
 
-        wp_enqueue_style( 'main-404-css', $css, '',AEPRH_VERSION);
-
-		$js= plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/js/aeprh-admin-script.js";       
-		wp_enqueue_script( 'wsppcp-custom', $js, array('jquery'), AEPRH_VERSION, true );
+		$aeprh_js = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/js/aeprh-admin-script.js";
+		wp_enqueue_script( 'wsppcp-custom', $aeprh_js, array('jquery'), AEPRH_VERSION, true );
     }
 
 }
