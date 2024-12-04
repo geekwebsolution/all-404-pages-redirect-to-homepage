@@ -31,9 +31,10 @@ if (!defined("AEPRH_PLUGIN_BASENAME"))
 
 require_once( plugin_dir_path( __FILE__ ) . 'functions.php' );
 
+define( 'AEPRH_VERSION', '2.0' );
+
 require(AEPRH_PLUGIN_DIR_PATH . 'updater/updater.php');
 
-define( 'AEPRH_BUILD', '2.0' );
 
 add_action('admin_menu', 'aeprh_admin_menu_404r');
 

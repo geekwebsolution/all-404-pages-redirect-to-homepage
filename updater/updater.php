@@ -11,7 +11,7 @@ function aeprh_updater_utility() {
         'prefix' => $prefix,
         'get_base' => AEPRH_PLUGIN_BASENAME,
         'get_slug' => AEPRH_PLUGIN_DIR,
-        'get_version' => AEPRH_BUILD,
+        'get_version' => AEPRH_VERSION,
         'get_api' => 'https://download.geekcodelab.com/',
         'license_update_class' => $prefix . 'Update_Checker'
     ];
