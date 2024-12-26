@@ -6,7 +6,7 @@ Description: a plugin to redirect all 404 pages to home page or any custom page
 
 Author: Geek Code Lab
 
-Version: 2.0
+Version: 2.1
 
 Author URI: https://geekcodelab.com/
 
@@ -31,7 +31,7 @@ if (!defined("AEPRH_PLUGIN_BASENAME"))
 
 require_once( plugin_dir_path( __FILE__ ) . 'functions.php' );
 
-define( 'AEPRH_VERSION', '2.0' );
+define( 'AEPRH_VERSION', '2.1' );
 
 require(AEPRH_PLUGIN_DIR_PATH . 'updater/updater.php');
 
