@@ -14,12 +14,10 @@ Text Domain : all-404-pages-redirect-to-homepage
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
+
+define( 'AEPRH_VERSION', '2.1' );
+
 if (!defined("AEPRH_PLUGIN_DIR_PATH"))
-
-	define("AEPRH_PLUGIN_DIR_PATH", plugin_dir_path(__FILE__));
-
-if (!defined("AEPRH_PLUGIN_DIR_PATH"))
-
 	define("AEPRH_PLUGIN_DIR_PATH", plugin_dir_path(__FILE__));
 
 if (!defined("AEPRH_PLUGIN_DIR"))
@@ -29,103 +27,73 @@ if (!defined("AEPRH_PLUGIN_BASENAME"))
 	define("AEPRH_PLUGIN_BASENAME", plugin_basename(__FILE__));
 
 
-require_once( plugin_dir_path( __FILE__ ) . 'functions.php' );
-
-define( 'AEPRH_VERSION', '2.1' );
+require_once( AEPRH_PLUGIN_DIR_PATH . 'functions.php' );
 
 require(AEPRH_PLUGIN_DIR_PATH . 'updater/updater.php');
 
-
-add_action('admin_menu', 'aeprh_admin_menu_404r');
-
-add_action('wp', 'aeprh_redirect_404r');
-
-add_action( 'admin_enqueue_scripts', 'aeprh_enqueue_styles_scripts_404r' );
-
-function aeprh_plugin_add_settings_link( $aeprh_links ) {
-
-	$aeprh_support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __( 'Support', 'all-404-pages-redirect-to-homepage' ) . '</a>';
-	array_unshift( $aeprh_links, $aeprh_support_link );
-
-	$aeprh_settings_link = '<a href="options-general.php?page=all-404-redirect-option">' . __( 'Settings', 'all-404-pages-redirect-to-homepage' ) . '</a>';
-	array_unshift( $aeprh_links, $aeprh_settings_link );
-
-	aeprh_create_table();
-
-	return $aeprh_links;
-}
-
-
-$aeprh_plugin = plugin_basename( __FILE__ );
-add_filter( "plugin_action_links_$aeprh_plugin", 'aeprh_plugin_add_settings_link');
-
 add_action( 'upgrader_process_complete', 'aeprh_upgrade_function',10, 2);
 
-function aeprh_upgrade_function( $upgrader_object, $options ) {
+function aeprh_upgrade_function() {
 	aeprh_create_table();
-}
-
-register_activation_hook( __FILE__ , 'aeprh_plugin_active_404r' );
-
-function aeprh_plugin_active_404r(){
-	aeprh_updater_activate();
-	$aeprh_redirect_to	= aeprh_get_redirect_to_404r();
-	$aeprh_status		= aeprh_get_status_404r();
-
-	if(empty($aeprh_redirect_to)){
-		update_option('redirect_to_404r',home_url());
-	}
-
-	if(empty($aeprh_status)){
-		update_option('status_404r',0);
-	}
-
 }
 
 add_action('upgrader_process_complete', 'aeprh_updater_activate'); // remove  transient  on plugin  update
 
-function aeprh_redirect_404r(){
 
-	if(is_404()) {
+add_action( 'admin_enqueue_scripts', 'aeprh_enqueue_styles_scripts_404r' );
 
-        $aeprh_redirect_to	= aeprh_get_redirect_to_404r();
-        $aeprh_status		= aeprh_get_status_404r();
-	    $aeprh_link			= aeprh_current_link_404r();
-	    if($aeprh_link == $aeprh_redirect_to){
-			_e("<b>All 404 Redirect to Homepage</b> has detected that the target URL is invalid, this will cause an infinite loop redirection, please go to the plugin settings and correct the traget link! ","all-404-pages-redirect-to-homepage");
-	        exit();
-	    }
+/** Admin Site Add Css And Script Start */
+function aeprh_enqueue_styles_scripts_404r(){
 
-	 	if($aeprh_status=='1' & $aeprh_redirect_to!=''){
+    if( is_admin() ) {
+        $aeprh_css = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/css/style.css";
+        wp_enqueue_style( 'main-404-css', $aeprh_css, '',AEPRH_VERSION);
 
-			global $wpdb;
-			global $wp;
-			$aeprh_table_name = $wpdb->prefix."aeprh_links_lists";
-
-
-			$aeprh_link_date 	= date("Y-m-d H:i:s");
-			$aeprh_ip_address	= $_SERVER['REMOTE_ADDR'];
-			$aeprh_curr_url = home_url( $wp->request );
-
-
-			$rowcount = $wpdb->get_var("SELECT COUNT(*) FROM $aeprh_table_name WHERE url = '$aeprh_curr_url' and ip_address = '$aeprh_ip_address' ");
-
-			if($rowcount == 0){
-
-				aeprh_create_table();
-
-				$res = $wpdb->insert($aeprh_table_name, array('url' => $aeprh_curr_url, 'time' => $aeprh_link_date, 'ip_address' => $aeprh_ip_address) );
-			}else{
-				$res =	$wpdb->update($aeprh_table_name, array('time'=>$aeprh_link_date), array('url'=>$aeprh_curr_url));
-			}
-
-		 	header ('HTTP/1.1 301 Moved Permanently');
-			header ("Location: " . $aeprh_redirect_to);
-			exit();
-
-		}
-	}
+		$aeprh_js = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/js/aeprh-admin-script.js";
+		wp_enqueue_script( 'wsppcp-custom', $aeprh_js, array('jquery'), AEPRH_VERSION, true );
+    }
 }
+/** Admin Site Add Script End */
+
+
+
+
+add_filter( 'admin_init', 'aeprh_section_fields' );
+
+
+function aeprh_section_fields(){
+	register_setting( 'aeprhsettings-group', 'aeprh_options' );
+
+	add_settings_section(
+		'aeprh_setting_section',
+		'',
+		'aeprh_setting_section_callback',
+		'aeprhsettings',
+	);
+
+	add_settings_field(
+		'aeprh_setting_title',
+		'Title',
+		'aeprh_option_callback',
+		'aeprhsettings',
+		'aeprh_setting_section'
+	);
+
+}
+
+function aeprh_setting_section_callback(){
+	// echo "test";
+}
+
+function aeprh_option_callback(){
+	$options = get_option( 'aeprh_options' );
+	$html = '<input type="text"  name="carousel_options[slide_one_title]" value="" />';
+	$html .= '<lable for="cbc_slide_one_title">Title for first slide.</label>';
+
+	echo $html;
+}
+
+add_action('admin_menu', 'aeprh_admin_menu_404r');
 
 //---------------------------------------------------------------
 
@@ -142,26 +110,121 @@ function aeprh_admin_menu_404r() {
 //---------------------------------------------------------------//
 
 function aeprh_options_menu_404r() {
+	$default_tab = null;
+	$tab         = "";
+	$tab         = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : $default_tab;
 	if (!current_user_can('manage_options')){
-
 		wp_die( __('You do not have sufficient permissions to access this page.','all-404-pages-redirect-to-homepage') );
 	}
+	get_settings_errors();
+	?>
+	<div class="aeprh-main-box">
+		<div class="aeprh-container">
+			<div class="aeprh-header">
+				<h1 class="aeprh-h1"> <?php _e('All 404 Redirect to Homepage', 'all-404-pages-redirect-to-homepage'); ?></h1>
+			</div>
+			<div class="aeprh-option-section">
+				<div class="aeprh-tabbing-box">
+					<ul class="aeprh-tab-list">
+						<li><a href="?page=all-404-redirect-option" class="nav-tab <?php if ($tab === null) : ?>nav-tab-active<?php endif; ?>"><?php _e('General option', 'all-404-pages-redirect-to-homepage'); ?></a></li>
+						<li><a href="?page=all-404-redirect-option&tab=aeprh-404-urls" class="nav-tab <?php if ($tab === 'aeprh-404-urls') : ?>nav-tab-active<?php endif; ?>"><?php _e('404 Logs', 'all-404-pages-redirect-to-homepage'); ?></a></li>
+					</ul>
+				</div>
+				<section class="aeprh-section">
+					<div class='aeprh_inner'>
+						<form method="post" action="options.php">
+						<?php
+						if ($tab == null) { ?>
+							<?php
+								settings_fields( 'aeprhsettings-group' );
+								do_settings_sections( 'aeprhsettings' );
+								// submit_button();
+							?>
+							<?php
+						} ?>
+						</form>
+					</div>
+				</section>
+			</div>
+		</div>
+	</div>
+	<?php
 
-	include( plugin_dir_path( __FILE__ ) . 'options.php' );
+	// settings_fields( 'aeprhsettings-group' );
+	// do_settings_sections( 'aeprhsettings' );
+
+	// submit_button();
+
+	// include( plugin_dir_path( __FILE__ ) . 'options.php' );
 }
 
 //---------------------------------------------------------------//
 
-/** Admin Site Add Css And Script Start */
-function aeprh_enqueue_styles_scripts_404r(){
+add_filter( "plugin_action_links_".AEPRH_PLUGIN_BASENAME, 'aeprh_plugin_add_settings_link');
 
-    if( is_admin() ) {
-        $aeprh_css = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/css/style.css";
-        wp_enqueue_style( 'main-404-css', $aeprh_css, '',AEPRH_VERSION);
+function aeprh_plugin_add_settings_link( $aeprh_links ) {
 
-		$aeprh_js = plugins_url() . '/'.  basename(dirname(__FILE__)) . "/assets/js/aeprh-admin-script.js";
-		wp_enqueue_script( 'wsppcp-custom', $aeprh_js, array('jquery'), AEPRH_VERSION, true );
-    }
+	$aeprh_support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __( 'Support', 'all-404-pages-redirect-to-homepage' ) . '</a>';
+	array_unshift( $aeprh_links, $aeprh_support_link );
 
+	$aeprh_settings_link = '<a href="options-general.php?page=all-404-redirect-option">' . __( 'Settings', 'all-404-pages-redirect-to-homepage' ) . '</a>';
+	array_unshift( $aeprh_links, $aeprh_settings_link );
+
+	aeprh_create_table();
+
+	return $aeprh_links;
 }
-/** Admin Site Add Script End */
+
+register_activation_hook( __FILE__ , 'aeprh_plugin_active_404r' );
+
+function aeprh_plugin_active_404r(){
+	aeprh_updater_activate();
+	$aeprh_redirect_to	= aeprh_get_redirect_to_404r();
+	$aeprh_status		= aeprh_get_status_404r();
+
+	if(empty($aeprh_redirect_to)){
+		update_option('redirect_to_404r',home_url());
+	}
+
+	if(empty($aeprh_status)){
+		update_option('status_404r',0);
+	}
+}
+
+add_action('wp', 'aeprh_redirect_404r');
+
+function aeprh_redirect_404r(){
+
+	if(is_404()) {
+
+        $aeprh_redirect_to	= aeprh_get_redirect_to_404r();
+        $aeprh_status		= aeprh_get_status_404r();
+	    $aeprh_link			= aeprh_current_link_404r();
+	    if($aeprh_link == $aeprh_redirect_to){
+			_e("<b>All 404 Redirect to Homepage</b> has detected that the target URL is invalid, this will cause an infinite loop redirection, please go to the plugin settings and correct the traget link! ","all-404-pages-redirect-to-homepage");
+	        exit();
+	    }
+
+	 	if($aeprh_status =='1' & $aeprh_redirect_to !=''){
+
+			global $wpdb;
+			global $wp;
+			$aeprh_table_name = $wpdb->prefix."aeprh_links_lists";
+
+			$aeprh_link_date 	= date("Y-m-d H:i:s");
+			$aeprh_ip_address	= $_SERVER['REMOTE_ADDR'];
+			$aeprh_curr_url 	= home_url( $wp->request );
+			$rowcount 			= $wpdb->get_var("SELECT COUNT(*) FROM $aeprh_table_name WHERE url = '$aeprh_curr_url' and ip_address = '$aeprh_ip_address' ");
+
+			if($rowcount == 0){
+				aeprh_create_table();
+				$wpdb->insert($aeprh_table_name, array('url' => $aeprh_curr_url, 'time' => $aeprh_link_date, 'ip_address' => $aeprh_ip_address) );
+			}else{
+				$wpdb->update($aeprh_table_name, array('time' =>$aeprh_link_date), array('url'=>$aeprh_curr_url));
+			}
+		 	header ('HTTP/1.1 301 Moved Permanently');
+			header ("Location: " . $aeprh_redirect_to);
+			exit();
+		}
+	}
+}
